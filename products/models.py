@@ -1,5 +1,5 @@
 from django.db import models
-from core.models    import TimeStampedModel
+from core.models    import TimeStampModel
 
 class Menu(models.Model):
     name = models.CharField(max_length=50)
@@ -37,7 +37,7 @@ class Product(models.Model) :
     class Meta: 
         db_table = 'products'
 
-class Review(models.Model):
+class Review(TimeStampModel):
     product    = models.ForeignKey('Product', on_delete=models.CASCADE)
     user       = models.ForeignKey('users.User', on_delete=models.CASCADE)
     rating     = models.DecimalField(max_digits=2, decimal_places=1)
@@ -54,7 +54,7 @@ class Cart(models.Model):
     class Meta:
         db_table = 'cart'
 
-class Order(models.Model):
+class Order(TimeStampModel):
     user             = models.ForeignKey('users.User', on_delete=models.CASCADE)
     shipping_address = models.CharField(max_length=1000)
     contact          = models.CharField(max_length=120)

@@ -6,7 +6,7 @@ class User(TimeStampModel):
     name          = models.CharField(max_length=50)
     email         = models.EmailField(unique=True)
     password      = models.CharField(max_length=200)
-    date_of_birth = models.DateField(auto_now=False)
+    year_of_birth = models.IntegerField()
     gender        = models.ForeignKey('Gender', on_delete=models.CASCADE)
     deleted_at    = models.DateTimeField(null=True)
 

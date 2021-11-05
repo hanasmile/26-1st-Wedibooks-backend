@@ -35,7 +35,7 @@ class SignupView(View):
                 name          = name,
                 password      = hashed_password.decode('utf-8'),
                 email         = email,
-                date_of_birth = year_of_birth,
+                year_of_birth = year_of_birth,
                 gender        = Gender.objects.get(id = gender)
             )
             return JsonResponse({"message": "SUCCESS"}, status=201)

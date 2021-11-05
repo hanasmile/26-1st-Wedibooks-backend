@@ -1,7 +1,8 @@
-import json, re, bcrypt
+import json, re, bcrypt, jwt
 
 from django.http import JsonResponse
 from django.views import View
+from django.conf import settings
 
 from .models import User, Gender
 
@@ -25,6 +26,9 @@ class SignupView(View):
             if not re.match('^[\w+-]+@[\w]+\.[\w.]+$', email):
                 return JsonResponse({"message": "Email format is not valid"}, status=400)
 
+            if User.objects.filter(username = username).exists():
+                return JsonResponse({"message": "ID_Exist_Error"}, status=400)
+
             if User.objects.filter(email = email).exists():
                 return JsonResponse({"message": "Email_Exist_Error"}, status=400)
             
@@ -42,3 +46,25 @@ class SignupView(View):
 
         except KeyError:
             return JsonResponse({"message": "Key_Error"}, status=400)
+
+class SigninView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            username = data['id']
+            password = data['password']
+            user = User.objects.get(username=username)
+
+            if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                access_token = jwt.encode({"user_id": user.id}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+                
+                return JsonResponse({"access_token": access_token}, status=200)
+
+            else:
+                return JsonResponse({"message": "INVALID_USER"}, status=401)
+
+        except KeyError:
+            return JsonResponse({"message": "Key_Error"}, status=400)
+            
+        except User.DoesNotExist:
+            return JsonResponse({"message": "Does_Not_Exist"}, status=404)

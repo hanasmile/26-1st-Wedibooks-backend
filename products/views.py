@@ -15,7 +15,6 @@ class ProductDetailView(View):
             for review in reviews:
                 review_info = {
                     "username" : review.user.username,
-                    "product" : review.product.name,
                     "rating" : review.rating,
                     "content" : review.content,
                     "created_at" : review.created_at

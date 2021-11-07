@@ -37,7 +37,6 @@ class Product(models.Model) :
     detail_description1 = models.CharField(max_length=500, null=True)
     detail_description2 = models.CharField(max_length=500, null=True)
 
-
     class Meta: 
         db_table = 'products'
 

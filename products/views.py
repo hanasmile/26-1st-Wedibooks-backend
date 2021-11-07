@@ -5,23 +5,13 @@ from django.views import View
 
 from .models import Product
 
-class ProductDetailView(View):
+class ProductView(View):
     def get(self, request, id):
         try:
             product = Product.objects.get(id=id)
-            result = []
-            review_list = []
             reviews = product.review_set.all()
-            for review in reviews:
-                review_info = {
-                    "username" : review.user.username,
-                    "rating" : review.rating,
-                    "content" : review.content,
-                    "created_at" : review.created_at
-                }
-                review_list.append(review_info)
-
-            info = {
+            result = [
+                {
                 "product_info" : {
                     "category"            : product.subcategory.category.name,
                     "sub_category"        : product.subcategory.name,
@@ -36,11 +26,17 @@ class ProductDetailView(View):
                     "translator"          : product.translator,
                     "painter"             : product.painter
                     },
-                "review_info" : review_list
-            }
-            
-            result.append(info)
-
+                "review_info" :
+                [
+                    {
+                    "username"   : review.user.username,
+                    "rating"     : review.rating,
+                    "content"    : review.content,
+                    "created_at" : review.created_at
+                    } for review in reviews
+                ]
+                }
+            ]
             return JsonResponse({"message" : result}, status=200)
         
         except KeyError:

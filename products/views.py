@@ -10,9 +10,9 @@ class ProductView(View):
         try:
             product = Product.objects.get(id=id)
             reviews = product.review_set.all()
-            result = [
+            result = {
+                "product_info" : 
                 {
-                "product_info" : {
                     "category"            : product.subcategory.category.name,
                     "sub_category"        : product.subcategory.name,
                     "name"                : product.name,
@@ -35,8 +35,7 @@ class ProductView(View):
                     "created_at" : review.created_at
                     } for review in reviews
                 ]
-                }
-            ]
+            }
             return JsonResponse({"message" : result}, status=200)
         
         except KeyError:

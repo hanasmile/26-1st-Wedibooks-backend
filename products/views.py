@@ -3,7 +3,8 @@ import json
 from django.http import JsonResponse
 from django.views import View
 
-from .models import Product
+from .models import Product, Review
+from django.db.models import Q
 
 class ProductView(View):
     def get(self, request, id):
@@ -43,3 +44,24 @@ class ProductView(View):
 
         except Product.DoesNotExist:
             return JsonResponse({"message" : "도서 정보가 없습니다."}, status=401)
+
+class ProductListView(View): 
+    def get(self, request, sub_category=None):
+        q = Q()
+
+        if sub_category:
+            q &= Q(subcategory_id=sub_category)
+
+        products = Product.objects.filter(q)
+        result=[]
+        
+        for product in products:
+            result.append(
+                {
+                    "name" : product.name,
+                    "author" : product.author,
+                    "image" : product.thumbnail_image_url,
+                    "rating" : [review.rating for review in Review.objects.filter(product_id = product.id)]
+                }
+            )
+        return JsonResponse({"Products" : result}, status = 200)

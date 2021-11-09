@@ -29,14 +29,13 @@ class Product(models.Model) :
     date_published      = models.DateField()
     price               = models.DecimalField(max_digits=7, decimal_places=2)
     description         = models.TextField()
-    index               = models.TextField()
+    index               = models.TextField(null=True)
     thumbnail_image_url = models.CharField(max_length=2000)
     translator          = models.CharField(max_length=100, null=True)
     painter             = models.CharField(max_length=100, null=True)
     head_description    = models.CharField(max_length=500, null=True)
     detail_description1 = models.CharField(max_length=500, null=True)
     detail_description2 = models.CharField(max_length=500, null=True)
-
 
     class Meta: 
         db_table = 'products'

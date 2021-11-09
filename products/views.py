@@ -3,8 +3,9 @@ import json
 from django.http import JsonResponse
 from django.views import View
 
-from .models import Product, Review
-from django.db.models import Q
+from .models import Product
+from django.db.models import Q, Avg, Count
+# from django.db.models.functions import Round
 
 class ProductView(View):
     def get(self, request, id):
@@ -46,22 +47,39 @@ class ProductView(View):
             return JsonResponse({"message" : "도서 정보가 없습니다."}, status=401)
 
 class ProductListView(View): 
-    def get(self, request, sub_category=None):
+    def get(self, request):
+        new_books = request.GET.get('new_books', None)
+        sub_category = request.GET.get('sub_category', None)
+        category = request.GET.get('category', None)
+        rating = request.GET.get('rating', None)
+        print(rating)
         q = Q()
-
+       
         if sub_category:
             q &= Q(subcategory_id=sub_category)
 
-        products = Product.objects.filter(q)
+        products = Product.objects.filter(q).annotate(reviews_count=Count('review')).annotate(average_rating=Avg('review__rating'))
         result=[]
+
+        if rating:
+            products=products.order_by(rating).reverse()[:20]
+
+        if new_books:
+            products=products.order_by('date_published').reverse()[:20]
         
+        if category :
+            q &= Q(subcategory__category_id=category)
+            # products=products.values('name', 'author', 'thumbnail_image_url', 'date_published', 'rating').distinct()
+
         for product in products:
             result.append(
                 {
                     "name" : product.name,
                     "author" : product.author,
                     "image" : product.thumbnail_image_url,
-                    "rating" : [review.rating for review in Review.objects.filter(product_id = product.id)]
+                    "date_published" : product.date_published,
+                    "rating" : round(product.average_rating,1)
+                    # [review.rating for review in Review.objects.filter(product_id = product.id)]
                 }
             )
         return JsonResponse({"Products" : result}, status = 200)

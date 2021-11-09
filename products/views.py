@@ -5,7 +5,6 @@ from django.views import View
 
 from .models import Product
 from django.db.models import Q, Avg, Count
-# from django.db.models.functions import Round
 
 class ProductView(View):
     def get(self, request, id):
@@ -52,34 +51,29 @@ class ProductListView(View):
         sub_category = request.GET.get('sub_category', None)
         category = request.GET.get('category', None)
         rating = request.GET.get('rating', None)
-        print(rating)
         q = Q()
+        offset = 0
+        limit = 20
        
         if sub_category:
             q &= Q(subcategory_id=sub_category)
+        if category:
+            q &= Q(subcategory__category_id=category)    
 
-        products = Product.objects.filter(q).annotate(reviews_count=Count('review')).annotate(average_rating=Avg('review__rating'))
+        products = Product.objects.filter(q).annotate(reviews_count=Count('review')).annotate(average_rating=Avg('review__rating')).values("name", "author", "thumbnail_image_url", "date_published", "average_rating").distinct()
         result=[]
 
         if rating:
-            products=products.order_by(rating).reverse()[:20]
+            products=products.order_by(rating).reverse()[offset:limit+offset]
 
         if new_books:
-            products=products.order_by('date_published').reverse()[:20]
-        
-        if category :
-            q &= Q(subcategory__category_id=category)
-            # products=products.values('name', 'author', 'thumbnail_image_url', 'date_published', 'rating').distinct()
+            products=products.order_by('-date_published')[offset:limit+offset]
 
-        for product in products:
-            result.append(
-                {
-                    "name" : product.name,
-                    "author" : product.author,
-                    "image" : product.thumbnail_image_url,
-                    "date_published" : product.date_published,
-                    "rating" : round(product.average_rating,1)
-                    # [review.rating for review in Review.objects.filter(product_id = product.id)]
-                }
-            )
+        result = [{
+                "name"           : product['name'],
+                "author"         : product['author'],
+                "image"          : product['thumbnail_image_url'],
+                "date_published" : product['date_published'],
+                "rating"         : round(product['average_rating'],1)
+                } for product in products]
         return JsonResponse({"Products" : result}, status = 200)

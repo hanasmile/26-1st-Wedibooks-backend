@@ -10,7 +10,7 @@ class ProductView(View):
     def get(self, request, id):
         try:
             product         = Product.objects.get(id=id)
-            average_rating  = product.review_set.aggregate(average = Avg("rating"))["average"]
+            average_rating  = round(product.review_set.aggregate(average = Avg("rating"))["average"],1)
             
             result = {
                 "product_info" : {

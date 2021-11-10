@@ -9,8 +9,9 @@ from .models import Product
 class ProductView(View):
     def get(self, request, id):
         try:
-            product = Product.objects.get(id=id)
-            reviews = product.review_set.all()
+            product         = Product.objects.get(id=id)
+            average_rating  = product.review_set.aggregate(average = Avg("rating"))["average"]
+            
             result = {
                 "product_info" : {
                     "category"            : product.subcategory.category.name,
@@ -25,14 +26,14 @@ class ProductView(View):
                     "thumbnail_image_url" : product.thumbnail_image_url,
                     "translator"          : product.translator,
                     "painter"             : product.painter,
-                    "averagy_rating"      : reviews.aggregate(Avg("rating"))
-                    },
+                    "average_rating"      : average_rating if average_rating else 0
+                },
                 "review_info" :[{
                     "username"   : review.user.username,
                     "rating"     : review.rating,
                     "content"    : review.content,
                     "created_at" : review.created_at
-                } for review in reviews]
+                } for review in product.review_set.all()]
             }
             return JsonResponse({"message" : result}, status=200)
         

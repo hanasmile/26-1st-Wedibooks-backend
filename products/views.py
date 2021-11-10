@@ -2,6 +2,7 @@ import json
 
 from django.http import JsonResponse
 from django.views import View
+from django.db.models import Avg
 
 from .models import Product
 
@@ -11,8 +12,7 @@ class ProductView(View):
             product = Product.objects.get(id=id)
             reviews = product.review_set.all()
             result = {
-                "product_info" : 
-                {
+                "product_info" : {
                     "category"            : product.subcategory.category.name,
                     "sub_category"        : product.subcategory.name,
                     "name"                : product.name,
@@ -24,17 +24,15 @@ class ProductView(View):
                     "index"               : product.index,
                     "thumbnail_image_url" : product.thumbnail_image_url,
                     "translator"          : product.translator,
-                    "painter"             : product.painter
+                    "painter"             : product.painter,
+                    "averagy_rating"      : reviews.aggregate(Avg("rating"))
                     },
-                "review_info" :
-                [
-                    {
+                "review_info" :[{
                     "username"   : review.user.username,
                     "rating"     : review.rating,
                     "content"    : review.content,
                     "created_at" : review.created_at
-                    } for review in reviews
-                ]
+                } for review in reviews]
             }
             return JsonResponse({"message" : result}, status=200)
         
@@ -42,4 +40,4 @@ class ProductView(View):
             return JsonResponse({"message" : "KEY_ERROR"}, status=400)
 
         except Product.DoesNotExist:
-            return JsonResponse({"message" : "도서 정보가 없습니다."}, status=401)
+            return JsonResponse({"message" : "도서 정보가 없습니다."}, status=404)

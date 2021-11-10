@@ -64,7 +64,7 @@ class ProductListView(View):
         result=[]
 
         if rating:
-            products=products.order_by(rating).reverse()[offset:limit+offset]
+            products=products.order_by(-rating).reverse()[offset:limit+offset]
 
         if new_books:
             products=products.order_by('-date_published')[offset:limit+offset]

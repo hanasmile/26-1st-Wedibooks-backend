@@ -67,10 +67,6 @@ class ProductListView(View):
                                   .annotate(average_rating=Avg('review__rating'))\
                                   .values("name", "author", "thumbnail_image_url", "date_published", "average_rating")\
                                   .distinct()
-
-        for product in products:
-            print(product['average_rating'])
-
         if rating:
             products=products.order_by(rating)[offset:limit+offset]
 

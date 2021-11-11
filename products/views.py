@@ -5,6 +5,7 @@ from django.views import View
 from django.db.models import Avg
 
 from .models import Product
+from django.db.models import Q, Avg, Count
 
 class ProductView(View):
     def get(self, request, id):
@@ -45,3 +46,43 @@ class ProductView(View):
 
         except Product.DoesNotExist:
             return JsonResponse({"message" : "도서 정보가 없습니다."}, status=404)
+
+class ProductListView(View): 
+    def get(self, request):
+        new_books = request.GET.get('new_books', None)
+        sub_category = request.GET.get('sub_category', None)
+        category = request.GET.get('category', None)
+        rating = request.GET.get('rating', None)
+        q = Q()
+        offset = 0
+        limit = 20
+       
+        if sub_category:
+            q &= Q(subcategory_id=sub_category)
+        if category:    
+            q &= Q(subcategory__category_id=category)    
+
+        products = Product.objects.filter(q)\
+                                  .annotate(reviews_count=Count('review'))\
+                                  .annotate(average_rating=Avg('review__rating'))\
+                                  .values("name", "author", "thumbnail_image_url", "date_published", "average_rating")\
+                                  .distinct()
+
+        for product in products:
+            print(product['average_rating'])
+
+        if rating:
+            products=products.order_by(rating)[offset:limit+offset]
+
+        if new_books:
+            products=products.order_by('-date_published')[offset:limit+offset]
+
+        result = [{
+            "name"           : product['name'],
+            "author"         : product['author'],
+            "image"          : product['thumbnail_image_url'],
+            "date_published" : product['date_published'],
+            "rating"         : round(float(product['average_rating']), 1) if product['average_rating'] else 0
+        } for product in products]
+      
+        return JsonResponse({"products" : result}, status = 200)

@@ -2,6 +2,7 @@ import json
 
 from django.http import JsonResponse
 from django.views import View
+from django.db.models import Avg
 
 from .models import Product
 from django.db.models import Q, Avg, Count
@@ -9,11 +10,14 @@ from django.db.models import Q, Avg, Count
 class ProductView(View):
     def get(self, request, id):
         try:
-            product = Product.objects.get(id=id)
-            reviews = product.review_set.all()
+            product         = Product.objects.get(id=id)
+            average_rating  = product.review_set.aggregate(average = Avg("rating"))["average"]
+            
+            if average_rating == None:
+                average_rating = 0
+                
             result = {
-                "product_info" : 
-                {
+                "product_info" : {
                     "category"            : product.subcategory.category.name,
                     "sub_category"        : product.subcategory.name,
                     "name"                : product.name,
@@ -25,17 +29,15 @@ class ProductView(View):
                     "index"               : product.index,
                     "thumbnail_image_url" : product.thumbnail_image_url,
                     "translator"          : product.translator,
-                    "painter"             : product.painter
-                    },
-                "review_info" :
-                [
-                    {
+                    "painter"             : product.painter,
+                    "average_rating"      : round(average_rating,1)
+                },
+                "review_info" :[{
                     "username"   : review.user.username,
                     "rating"     : review.rating,
                     "content"    : review.content,
                     "created_at" : review.created_at
-                    } for review in reviews
-                ]
+                } for review in product.review_set.all()]
             }
             return JsonResponse({"message" : result}, status=200)
         
@@ -43,7 +45,7 @@ class ProductView(View):
             return JsonResponse({"message" : "KEY_ERROR"}, status=400)
 
         except Product.DoesNotExist:
-            return JsonResponse({"message" : "도서 정보가 없습니다."}, status=401)
+            return JsonResponse({"message" : "도서 정보가 없습니다."}, status=404)
 
 class ProductListView(View): 
     def get(self, request):

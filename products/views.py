@@ -10,8 +10,11 @@ class ProductView(View):
     def get(self, request, id):
         try:
             product         = Product.objects.get(id=id)
-            average_rating  = round(product.review_set.aggregate(average = Avg("rating"))["average"],1)
+            average_rating  = product.review_set.aggregate(average = Avg("rating"))["average"]
             
+            if average_rating == None:
+                average_rating = 0
+                
             result = {
                 "product_info" : {
                     "category"            : product.subcategory.category.name,
@@ -26,7 +29,7 @@ class ProductView(View):
                     "thumbnail_image_url" : product.thumbnail_image_url,
                     "translator"          : product.translator,
                     "painter"             : product.painter,
-                    "average_rating"      : average_rating if average_rating else 0
+                    "average_rating"      : round(average_rating,1)
                 },
                 "review_info" :[{
                     "username"   : review.user.username,

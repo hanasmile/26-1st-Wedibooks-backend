@@ -57,23 +57,30 @@ class ProductListView(View):
        
         if sub_category:
             q &= Q(subcategory_id=sub_category)
-        if category:
+        if category:    
             q &= Q(subcategory__category_id=category)    
 
-        products = Product.objects.filter(q).annotate(reviews_count=Count('review')).annotate(average_rating=Avg('review__rating')).values("name", "author", "thumbnail_image_url", "date_published", "average_rating").distinct()
-        result=[]
+        products = Product.objects.filter(q)\
+                                  .annotate(reviews_count=Count('review'))\
+                                  .annotate(average_rating=Avg('review__rating'))\
+                                  .values("name", "author", "thumbnail_image_url", "date_published", "average_rating")\
+                                  .distinct()
+
+        for product in products:
+            print(product['average_rating'])
 
         if rating:
-            products=products.order_by(-rating).reverse()[offset:limit+offset]
+            products=products.order_by(rating)[offset:limit+offset]
 
         if new_books:
             products=products.order_by('-date_published')[offset:limit+offset]
 
         result = [{
-                "name"           : product['name'],
-                "author"         : product['author'],
-                "image"          : product['thumbnail_image_url'],
-                "date_published" : product['date_published'],
-                "rating"         : round(product['average_rating'],1)
-                } for product in products]
-        return JsonResponse({"Products" : result}, status = 200)
+            "name"           : product['name'],
+            "author"         : product['author'],
+            "image"          : product['thumbnail_image_url'],
+            "date_published" : product['date_published'],
+            "rating"         : round(float(product['average_rating']), 1) if product['average_rating'] else 0
+        } for product in products]
+      
+        return JsonResponse({"products" : result}, status = 200)

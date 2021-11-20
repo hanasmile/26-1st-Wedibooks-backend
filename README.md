@@ -19,17 +19,17 @@
 - Javascript
 - React.js
 - sass
-- react-model
 - Python
 - Django
 - MySQL
+- JWT
 - AWS EC2, RDS
 - Git, Github
 - Slack, Trello
 
 ## 구현 기능
 > 회원가입 / 로그인 기능 구현
-- Bcrypt 암호화, 회원가입 유효성 검사
+- Bcrypt 암호화, 회원가입, 로그인 유효성 검사
 - JWT access token 전송
 - Login Decorator
 

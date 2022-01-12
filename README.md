@@ -40,8 +40,7 @@
 
 > Review
 - 데코레이터, 정규식을 이용한 도서별 리뷰 등록 API
-- 평점 계산 및
-- 도서별 리뷰 리스트 API
+- 평점 계산 및 도서별 리뷰 리스트 API
 
 ## ERD
 <img width="1020" alt="스크린샷 2022-01-12 오후 3 32 26" src="https://user-images.githubusercontent.com/89324683/149076101-105fb441-6c59-428f-8573-be5853f9ec69.png">

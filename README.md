@@ -1,6 +1,6 @@
-# Wedibooks Project 📚
->
->[시현 영상](https://youtu.be/lOiYYq0XvAc)
+# 📚 Wedibooks Project
+
+[시현 영상] https://youtu.be/lOiYYq0XvAc
 
 ### [팀명] : Wedibooks (위디북스)
 

@@ -13,10 +13,12 @@
 - 개발 인원 : Front-End 4명, Back-End 2명
 - 담당 분야 : Back-End 개발
 
-## github repository
+## Github Repository
 - [Front-End Repository](https://github.com/wecode-bootcamp-korea/26-1st-Wedibooks-frontend.git)
 
 - [Back-End Repository](https://github.com/wecode-bootcamp-korea/26-1st-Wedibooks-backend.git)
+
+<br>
 
 ## 적용 기술 및 역할
 ### 적용 기술
@@ -30,10 +32,9 @@
 - 카테고리별 도서 리스트 조회
 
 #### 한화연
-> 회원가입 / 로그인 기능 구현
-- bcrypt 암호화, 회원가입, 로그인 유효성 검사
-- JWT access token 전송
-- Login Decorator
+> 회원가입/로그인 기능 구현
+- JWT, bcrypt 암호화를 이용한 회원가입/로그인 유효성 검사
+- Login Decorator 구현
 
 > Product
 - 도서별 상세정보 조회 API
